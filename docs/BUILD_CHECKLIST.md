@@ -6,11 +6,14 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Resume here
 
-- Current implementation: Phase 2 authentication and intake, on `feature/backend-intake-workflows`.
+- Current implementation: Phase 5 candidate matching, on `feature/ai-match-engine`
+  (stacked on the Phase 2–4 feature branches).
 - Foundation commit: `dd34c2a934ae7ab9f167e1f32715d75ff40e5e84` (Phase 1, on `main`).
-- Phase 2 adds development-only demo auth, family/hospital intake, image storage, and family
-  tracking. Demo auth is off by default and refuses to run outside development.
-- Next implementation: Phase 3 facial similarity (mock + opt-in ArcFace), no real verification.
+- Phases 2–5 add development-only demo auth, family/hospital intake with image storage,
+  mock + opt-in face matching and clothing detection, and a transparent matching engine
+  that persists ranked candidates with explicit evidence. Demo auth is off by default.
+- Next implementation: Phase 6 investigation and human review (dashboard, reviewer actions,
+  immutable audit trail). AI/matching must never set verified status or contact families.
 - No real AI inference, reviewer workflow, or deployment exists yet.
 - Keep the existing starter directory; do not move or overwrite teammates' work.
 
@@ -128,16 +131,24 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 5 — Record matching
 
-- [ ] Create `backend/app/services/ai/match_engine.py` and restricted matching API.
-- [ ] Implement transparent candidate retrieval with incident/location/timeline constraints.
-- [ ] Combine available face, clothing, age, height, name/nickname, distinguishing-feature,
+- [x] Create `backend/app/services/ai/match_engine.py` and restricted matching API.
+  `match_engine.py` (pure logic) + `api/match_routes.py` (reviewer/admin only).
+- [x] Implement transparent candidate retrieval with incident/location/timeline constraints.
+  Retrieval is scoped to the same incident; timeline ordering is a weak signal.
+- [x] Combine available face, clothing, age, height, name/nickname, distinguishing-feature,
   location, and timeline evidence without treating missing data as disagreement.
-- [ ] Persist supporting, conflicting, and missing evidence, model versions, ranking score,
+  Missing fields are recorded as missing; text wording differences are never conflicts.
+- [x] Persist supporting, conflicting, and missing evidence, model versions, ranking score,
   and review status for every candidate.
-- [ ] Support no sufficiently supported candidate; do not force a match.
-- [ ] Keep rank scores distinct from calibrated identity probabilities.
-- [ ] Evaluate Splink as a probabilistic baseline; document licensing and evaluation result.
-- [ ] Test supported, conflicting, incomplete, and no-match cases; prevent record leakage.
+  `MatchCandidate.evidence_json` stores evidence + `engine_version`; `ranking_score`, `status`.
+- [x] Support no sufficiently supported candidate; do not force a match.
+  `rank_candidates` returns an empty list when nothing is supported.
+- [x] Keep rank scores distinct from calibrated identity probabilities.
+  Score is a transparent `supporting - conflicting` tally, documented as not a probability.
+- [x] Evaluate Splink as a probabilistic baseline; document licensing and evaluation result.
+  See [candidate matching](matching.md): Splink (MIT) baseline design, not yet integrated.
+- [x] Test supported, conflicting, incomplete, and no-match cases; prevent record leakage.
+  10 Phase 5 tests in `tests/test_match_engine.py`; family denied (403) on all matching routes.
 - [ ] Commit `feat: implement AI-assisted candidate matching`; push and open PR.
 
 ## Phase 6 — Investigation and human review
@@ -182,7 +193,8 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | Phase 2 auth + intake | Implemented and tested on `feature/backend-intake-workflows` | Migration `d9b4ba78b25b`; commit `424dac7`; 39 backend tests; `pip check`/`alembic check` clean; frontend lint/typecheck/build pass; live HTTP login/report/overview/CSRF flow verified |
 | Phase 3 facial similarity | Implemented and tested on `feature/ai-face-matching` | Commit `7d72e36`; mock + opt-in ArcFace; protected `/api/v1/face-comparisons`; 46 backend tests, no weight downloads; licensing documented |
 | Phase 4 clothing detection | Implemented and tested on `feature/ai-clothing-detection` | Mock + opt-in Grounding DINO; protected `/api/v1/clothing-detections`; detection overlay component; 52 backend tests; frontend lint/typecheck/build pass |
-| Phases 5–7 | Not implemented | Matching engine, reviewer workflow, and demo evaluation not yet built |
+| Phase 5 candidate matching | Implemented and tested on `feature/ai-match-engine` | `match_engine.py` transparent heuristic + protected `/api/v1/incidents/{id}/candidates` and `/match-candidates`; evidence/score/status persisted; Splink baseline documented; 62 backend tests; family denied |
+| Phases 6–7 | Not implemented | Reviewer workflow and demo evaluation not yet built |
 
 ## Open constraints and decisions
 

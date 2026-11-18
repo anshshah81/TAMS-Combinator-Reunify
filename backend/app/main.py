@@ -7,7 +7,7 @@ from .core.settings import Settings
 from .services.image_storage import LocalImageStorage
 from .models import Incident, MissingPersonReport, PatientRecord, MatchCandidate
 from .schemas import IncidentOut, DemoOverview
-from .api import auth_routes, reports, patients, images, ai_routes
+from .api import auth_routes, reports, patients, images, ai_routes, match_routes
 
 # Seeded synthetic scenario records use these id prefixes. The public dashboard
 # counts only these so that authenticated demo intake never leaks live
@@ -82,6 +82,7 @@ def create_app(session_factory=SessionLocal, settings: Settings | None = None, s
     app.include_router(patients.router)
     app.include_router(images.router)
     app.include_router(ai_routes.router)
+    app.include_router(match_routes.router)
     return app
 
 
