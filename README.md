@@ -6,6 +6,9 @@ This is a local demonstration, not an operational medical identification system.
 
 ## Phase 1
 
+Project continuity: [live build checklist](docs/BUILD_CHECKLIST.md) and
+[original user prompt, preserved verbatim](docs/ORIGINAL_PROMPT.md).
+
 Implemented: Next.js App Router dashboard and navigation, six scenario totals,
 incident search/status filters, loading/error/retry/empty states, FastAPI public
 exercise API, SQLAlchemy models, Alembic migration, explicit fictional seed data,
