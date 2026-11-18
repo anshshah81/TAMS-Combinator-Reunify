@@ -123,6 +123,25 @@ CORS is limited to `http://localhost:3000` and mutations require the
   (hospital own organization; reviewer/admin read).
 - `POST /api/v1/images`, `GET /api/v1/images/{id}` (authorized upload and retrieval).
 
+### Restricted API (Phases 3–6)
+
+Same demo-auth, CORS, and CSRF safeguards apply.
+
+- `POST /api/v1/face-comparisons`, `POST /api/v1/clothing-detections` (reviewer/admin;
+  labeled mock by default, opt-in real inference). Uncertain evidence, never verification.
+- `POST /api/v1/incidents/{id}/candidates`, `GET /api/v1/match-candidates[/{id}]`
+  (reviewer/admin). Transparent ranked suggestions; generation never verifies or contacts.
+- `GET /api/v1/match-candidates/{id}/investigation`, `GET/POST /api/v1/match-candidates/{id}/decisions`
+  (reviewer/admin). `verify` requires notes plus a written attestation.
+- `GET /api/v1/admin/{users,organizations,audit-logs}`, `PATCH /api/v1/admin/incidents/{id}` (admin).
+
+## Documentation
+
+- [End-to-end scenario](docs/scenario.md) and [pitch & onboarding guide](docs/pitch.md).
+- [Candidate matching](docs/matching.md) and measured [evaluation](docs/evaluation.md).
+- [Synthetic dataset provenance](docs/dataset.md) and [AI model licensing](docs/ai_model_licensing.md).
+- [Limitations and responsible use](docs/limitations.md).
+
 ## Checks
 
 ```powershell
@@ -160,9 +179,12 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [demo instructions](docs/demo.md).
 
 No open-source license is granted until the team chooses terms. Public visibility
 alone is not a license. Pretrained model/checkpoint licenses have not been approved;
-DeepFace, ArcFace, Grounding DINO, and Splink remain future work. No performance or
-accuracy claim has been measured. Never submit real medical, biometric, or contact
-data. Real deployment requires privacy, security, legal, and operational review.
+real DeepFace, ArcFace, and Grounding DINO inference and Splink linkage remain opt-in
+future work. The only performance numbers are from a synthetic, leakage-free
+evaluation ([docs/evaluation.md](docs/evaluation.md)) and do not predict real-world
+accuracy. Never submit real medical, biometric, or contact data. Real deployment
+requires privacy, security, legal, and operational review. See
+[docs/limitations.md](docs/limitations.md).
 
 Dependency audit details and the remaining development-tooling advisory are recorded
 in [docs/dependencies.md](docs/dependencies.md).

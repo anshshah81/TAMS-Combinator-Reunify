@@ -6,15 +6,15 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Resume here
 
-- Current implementation: Phase 6 investigation and human review, on `feature/review-workflow`
-  (stacked on the Phase 2–5 feature branches).
+- Current implementation: Phase 7 evaluation and competition demo, on `feature/competition-demo`
+  (stacked on the Phase 2–6 feature branches). All seven build phases are implemented.
 - Foundation commit: `dd34c2a934ae7ab9f167e1f32715d75ff40e5e84` (Phase 1, on `main`).
-- Phases 2–6 add development-only demo auth, family/hospital intake with image storage,
-  mock + opt-in face matching and clothing detection, a transparent matching engine, and the
-  reviewer investigation + human-only verification workflow with an immutable audit trail.
-- Next implementation: Phase 7 evaluation and competition demo (end-to-end scenario, dataset
-  provenance/licensing, person/incident-split evaluation, a11y passes, pitch/limitations docs).
-- No real AI inference or deployment exists yet; all data is synthetic.
+- Phases 2–7 add development-only demo auth, family/hospital intake with image storage,
+  mock + opt-in face matching and clothing detection, a transparent matching engine, the
+  reviewer investigation + human-only verification workflow with an immutable audit trail,
+  and a leakage-free evaluation harness plus scenario/dataset/evaluation/limitations/pitch docs.
+- Remaining before a release: feature branches merge to protected `main` (needs teammate review),
+  a team-chosen LICENSE, and teammate GitHub invitations. No real AI inference or deployment exists.
 - Keep the existing starter directory; do not move or overwrite teammates' work.
 
 ## How to keep context
@@ -177,17 +177,29 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 7 — Evaluation and competition demo
 
-- [ ] Create complete fictional scenario spanning intake, suggestions, no match, review, and resolution.
-- [ ] Document synthetic dataset provenance/license terms (Synthea/FEBRL/Splink where applicable).
-- [ ] Split evaluation data by person and incident to prevent leakage.
-- [ ] Measure recall@5, false-match rates, calibration where applicable, and reviewer burden.
-- [ ] Document actual measured performance and limitations; do not invent accuracy claims.
-- [ ] Verify end-to-end role workflows and privacy boundaries.
-- [ ] Complete responsive/accessibility checks and loading/error/empty states across all pages.
-- [ ] Resolve remaining applicable dependency findings and failing checks before deployment.
-- [ ] Write full pitch/demo instructions, limitations, and team startup/onboarding guide.
-- [ ] Obtain team's intended licensing terms before adding any LICENSE file.
-- [ ] Invite both teammates once their GitHub usernames are supplied and verify acceptance.
+- [x] Create complete fictional scenario spanning intake, suggestions, no match, review, and resolution.
+  [End-to-end scenario](scenario.md).
+- [x] Document synthetic dataset provenance/license terms (Synthea/FEBRL/Splink where applicable).
+  [Dataset provenance](dataset.md).
+- [x] Split evaluation data by person and incident to prevent leakage.
+  `app/eval/` splits disjointly by person and incident; asserted in harness and `tests/test_evaluation.py`.
+- [x] Measure recall@5, false-match rates, calibration where applicable, and reviewer burden.
+  Measured via `python -m app.eval.evaluate_matching`: recall@5 1.0, top-1 false-match 0.133, burden 19.65/report.
+- [x] Document actual measured performance and limitations; do not invent accuracy claims.
+  [Evaluation](evaluation.md) records the measured run; calibration explicitly N/A for the heuristic.
+- [x] Verify end-to-end role workflows and privacy boundaries.
+  69 backend tests + live API run: candidate generation stays `needs_review`, human verify → `verified`,
+  family blocked (403) on match data, audit recorded `candidate.verify`/`identity.verified`.
+- [x] Complete responsive/accessibility checks and loading/error/empty states across all pages.
+  Loading/error/empty states and ARIA roles (`status`/`alert`/`aria-current`/labeled controls) on every page;
+  responsive grids. Note: the Cursor in-IDE browser injects `data-cursor-ref`/`onTouchStart` pre-hydration,
+  which triggers a dev-only hydration warning on instrumented pages; the production build is unaffected.
+- [x] Resolve remaining applicable dependency findings and failing checks before deployment.
+  No new findings; the dev-only picomatch advisory remains documented in [dependencies](dependencies.md).
+- [x] Write full pitch/demo instructions, limitations, and team startup/onboarding guide.
+  [Pitch & demo](pitch.md) (includes onboarding) and [limitations](limitations.md).
+- [ ] Obtain team's intended licensing terms before adding any LICENSE file. (Blocked: awaiting team input.)
+- [ ] Invite both teammates once their GitHub usernames are supplied and verify acceptance. (Blocked: no usernames.)
 - [ ] Commit `chore: prepare Reunify competition MVP`; push and open PR.
 
 ## Evidence ledger
@@ -203,7 +215,7 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | Phase 4 clothing detection | Implemented and tested on `feature/ai-clothing-detection` | Mock + opt-in Grounding DINO; protected `/api/v1/clothing-detections`; detection overlay component; 52 backend tests; frontend lint/typecheck/build pass |
 | Phase 5 candidate matching | Implemented and tested on `feature/ai-match-engine` | `match_engine.py` transparent heuristic + protected `/api/v1/incidents/{id}/candidates` and `/match-candidates`; evidence/score/status persisted; Splink baseline documented; 62 backend tests; family denied |
 | Phase 6 review workflow | Implemented and tested on `feature/review-workflow` | Migration `b3f1c6a4e7d2`; `review_routes.py`/`admin_routes.py`; human-only verification with attestation; append-only audit; match-review + investigation + admin UIs; 67 backend tests; frontend lint/typecheck/build pass |
-| Phase 7 | Not implemented | Demo scenario, evaluation, and pitch docs not yet built |
+| Phase 7 evaluation + demo | Implemented and tested on `feature/competition-demo` | `app/eval/` leakage-free harness (measured recall@5 1.0, top-1 false-match 0.133, burden 19.65); scenario/dataset/evaluation/limitations/pitch docs; 69 backend tests; live API workflow verified; LICENSE + teammate invites still blocked on team input |
 
 ## Open constraints and decisions
 
