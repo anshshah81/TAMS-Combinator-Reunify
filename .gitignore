@@ -1,0 +1,35 @@
+# Secrets / local configs
+.env
+.env.*
+!.env.example
+!.env.local.example
+*.pem
+*.key
+# Application data and patient photos (never commit)
+*.db
+*.sqlite
+*.sqlite3
+uploads/
+patient_photos/
+face_embeddings/
+models/weights/
+*.pth
+*.pt
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+# Node
+node_modules/
+.next/
+.turbo/
+coverage/
+.DS_Store
+*.tsbuildinfo
+*.sqlite3-*
+*.db-*
+*.safetensors
+*.onnx
+*.h5
