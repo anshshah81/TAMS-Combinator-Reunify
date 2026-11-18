@@ -168,6 +168,49 @@ export async function listPatients(): Promise<PatientRecord[]> {
   return readJson<PatientRecord[]>(await get('/api/v1/patients'));
 }
 
+export type FaceComparison = {
+  status: string;
+  distance: number | null;
+  model: string;
+  detector: string;
+  warning: string | null;
+  mock: boolean;
+};
+
+export type ClothingQuery = {
+  query: string;
+  supported: boolean;
+  detections: { box: [number, number, number, number]; score: number }[];
+  note: string | null;
+};
+
+export type ClothingDetection = {
+  status: string;
+  model: string;
+  detector: string;
+  queries: ClothingQuery[];
+  warning: string | null;
+  mock: boolean;
+};
+
+export function imageUrl(imageId: string): string {
+  return `${api}/api/v1/images/${imageId}`;
+}
+
+export async function compareFaces(referenceImageId: string, candidateImageId: string): Promise<FaceComparison> {
+  return readJson<FaceComparison>(await post('/api/v1/face-comparisons', {
+    reference_image_id: referenceImageId,
+    candidate_image_id: candidateImageId,
+  }));
+}
+
+export async function detectClothing(imageId: string, descriptions: string[]): Promise<ClothingDetection> {
+  return readJson<ClothingDetection>(await post('/api/v1/clothing-detections', {
+    image_id: imageId,
+    clothing_descriptions: descriptions,
+  }));
+}
+
 export async function uploadImage(file: File): Promise<string> {
   const form = new FormData();
   form.append('file', file);

@@ -111,15 +111,19 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 4 — Clothing detection
 
-- [ ] Create `backend/app/services/ai/clothing_detection.py` with mock and opt-in real adapters.
-- [ ] Validate Grounding DINO code/checkpoint licensing and optional dependency compatibility.
-- [ ] Validate images and description inputs; prepare text prompts and run detection.
-- [ ] Return garment phrases, normalized/documented boxes, scores, query support, and metadata.
-- [ ] Distinguish failed detection, non-detection, obscuration, and possibly changed clothing.
-- [ ] Avoid assuming detected garment category confirms its color.
-- [ ] Require person association for multi-person images before clothing contributes evidence.
-- [ ] Add restricted detection endpoint and reviewer bounding-box visualization.
-- [ ] Test detections, failures, ambiguous people, no detections, and presentation.
+- [x] Create `backend/app/services/ai/clothing_detection.py` with mock and opt-in real adapters.
+- [x] Validate Grounding DINO code/checkpoint licensing and optional dependency compatibility.
+  See [AI model licensing](ai_model_licensing.md); optional deps in `backend/requirements-ai.txt`.
+- [x] Validate images and description inputs; prepare text prompts and run detection.
+- [x] Return garment phrases, normalized/documented boxes, scores, query support, and metadata.
+- [x] Distinguish failed detection, non-detection, obscuration, and possibly changed clothing.
+  `error` vs `none_detected` statuses; per-query note states non-detection is not absence.
+- [x] Avoid assuming detected garment category confirms its color.
+- [x] Require person association for multi-person images before clothing contributes evidence.
+  Result always carries the person-association warning.
+- [x] Add restricted detection endpoint and reviewer bounding-box visualization.
+  `POST /api/v1/clothing-detections`; `frontend/src/components/DetectionOverlay.tsx` (wired in Phase 6).
+- [x] Test detections, failures, ambiguous people, no detections, and presentation.
 - [ ] Commit `feat: integrate Grounding DINO clothing detection`; push and open PR.
 
 ## Phase 5 — Record matching
@@ -176,8 +180,9 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | GitHub collaboration documentation | Implemented and pushed; PR open, not merged | Commit `fe8e651`, branch `docs/github-publishing`, [PR #1](https://github.com/anshshah81/TAMS-Combinator-Reunify/pull/1); CI passed |
 | Continuity checklist and original prompt | Implemented and validated; tracked on `docs/mvp-build-checklist` | Documentation-only; original prompt byte-for-byte equality and local document links verified; publication/PR reported in chat |
 | Phase 2 auth + intake | Implemented and tested on `feature/backend-intake-workflows` | Migration `d9b4ba78b25b`; commit `424dac7`; 39 backend tests; `pip check`/`alembic check` clean; frontend lint/typecheck/build pass; live HTTP login/report/overview/CSRF flow verified |
-| Phase 3 facial similarity | Implemented and tested on `feature/ai-face-matching` | Mock + opt-in ArcFace adapters; protected `/api/v1/face-comparisons`; 46 backend tests pass with no weight downloads; licensing documented |
-| Phases 4–7 | Not implemented | Clothing detection, matching, reviewer workflow, and demo evaluation not yet built |
+| Phase 3 facial similarity | Implemented and tested on `feature/ai-face-matching` | Commit `7d72e36`; mock + opt-in ArcFace; protected `/api/v1/face-comparisons`; 46 backend tests, no weight downloads; licensing documented |
+| Phase 4 clothing detection | Implemented and tested on `feature/ai-clothing-detection` | Mock + opt-in Grounding DINO; protected `/api/v1/clothing-detections`; detection overlay component; 52 backend tests; frontend lint/typecheck/build pass |
+| Phases 5–7 | Not implemented | Matching engine, reviewer workflow, and demo evaluation not yet built |
 
 ## Open constraints and decisions
 

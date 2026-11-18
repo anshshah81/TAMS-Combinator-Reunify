@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field
 from ..core.auth import get_db, get_settings, get_storage, require_csrf, roles
 from ..models import ImageAsset, User
 from ..services.ai.face_matching import FaceMatchingUnavailable, compare_faces, get_matcher
+from ..services.ai.clothing_detection import (ClothingDetectionUnavailable, detect_clothing,
+                                              get_detector)
 
 router = APIRouter(prefix='/api/v1', tags=['ai'])
 
@@ -53,3 +55,47 @@ def create_face_comparison(payload: FaceCompareIn, request: Request,
         raise HTTPException(503, str(error))
     result = compare_faces(reference, candidate, matcher=matcher)
     return FaceComparisonOut(**result.as_dict())
+
+
+class ClothingDetectIn(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    image_id: ImageId
+    clothing_descriptions: Annotated[
+        list[Annotated[str, Field(min_length=1, max_length=100)]],
+        Field(min_length=1, max_length=20),
+    ]
+
+
+class DetectionOut(BaseModel):
+    box: list[float]
+    score: float
+
+
+class QueryResultOut(BaseModel):
+    query: str
+    supported: bool
+    detections: list[DetectionOut]
+    note: str | None
+
+
+class ClothingDetectionOut(BaseModel):
+    status: str
+    model: str
+    detector: str
+    queries: list[QueryResultOut]
+    warning: str | None
+    mock: bool
+
+
+@router.post('/clothing-detections', response_model=ClothingDetectionOut,
+             dependencies=[Depends(require_csrf)])
+def create_clothing_detection(payload: ClothingDetectIn, request: Request,
+                              _: User = Depends(roles('reviewer', 'admin')), db=Depends(get_db)):
+    storage = get_storage(request)
+    image_path = _resolve_path(storage, db, payload.image_id)
+    try:
+        detector = get_detector(get_settings(request).clothing_detect_mode)
+    except ClothingDetectionUnavailable as error:
+        raise HTTPException(503, str(error))
+    result = detect_clothing(image_path, payload.clothing_descriptions, detector=detector)
+    return ClothingDetectionOut(**result.as_dict())
