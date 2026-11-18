@@ -1,56 +1,52 @@
-# GitHub setup and publishing
+# GitHub collaboration setup
 
-The requested owner is `anshshah81`, repository `TAMS-Combinator-Reunify`, public,
-with default branch `main`. Do not create this under a different account.
+Repository: https://github.com/anshshah81/TAMS-Combinator-Reunify
 
-At implementation time the connected GitHub account was confirmed as `anshshah81`.
-The target repository returned 404 (not found or inaccessible), GitHub CLI was not
-installed, and the connector did not offer repository creation. No remote creation,
-push, PR, or ruleset success should be inferred from the presence of this file.
+The public repository now contains the Phase 1 foundation on `main`. Initial commit:
+`dd34c2a934ae7ab9f167e1f32715d75ff40e5e84`. The same baseline is retained on
+`feature/backend-foundation`. Both branches were published using the owner's
+GitHub account after browser authorization through Git Credential Manager.
 
-## Publish once GitHub CLI is installed and connected
+## Local authentication and commit identity
 
-Authenticate using the browser/device flow; never paste tokens into chat or files:
-
-```powershell
-gh auth login --hostname github.com --web
-gh auth status
-gh api user --jq .login
-gh repo view anshshah81/TAMS-Combinator-Reunify
-```
-
-Confirm the login is `anshshah81`. If the repository now exists, inspect its contents,
-branches, and open PRs first. Fetch its history and integrate the local foundation on
-a feature branch without replacing existing work. Do not force-push.
-
-Only if the repository does not exist, publish the reviewed local baseline from
-this starter folder (the branch is `feature/backend-foundation`):
+Git Credential Manager stores authentication outside the repository. To sign in on
+a new workstation, use the browser flow and verify the account:
 
 ```powershell
-git status
-git branch main
-gh repo create anshshah81/TAMS-Combinator-Reunify --public --source=. --remote=origin
-git push origin main
-gh repo edit anshshah81/TAMS-Combinator-Reunify --default-branch main
-git push -u origin feature/backend-foundation
+git credential-manager github login --username anshshah81 --browser
+git credential-manager github list
 ```
 
-The initial foundation is the baseline for a new repository; both branches point
-to the same commit, so there is no meaningful PR between them. Subsequent changes
-must branch from synchronized main and open reviewable feature PRs. If a baseline
-already exists remotely, integrate via PR instead of this initial-publish recipe.
+Each teammate must use their own GitHub account and commit identity. Never share
+passwords or tokens, paste credentials into chat, or commit them to the repository.
+The initial commit uses `anshshah81` and the account's GitHub no-reply email.
 
-## Branch protection
+## Feature workflow
 
-After CI has run once, open repository Settings → Rules → Rulesets → New branch
-ruleset. Name it `Protect main`, set enforcement to Active, and target the default
-branch (`main`). Require a pull request before merging with one approval, dismiss
-stale approvals after new commits, require conversation resolution, require status
-checks and branches to be up to date, block force pushes, and restrict deletions.
-Select the actual CI checks `backend (3.11)`, `backend (3.12)`, and `frontend` after
-they appear. Keep bypass permissions empty unless the team explicitly agrees.
-If rulesets are unavailable, use Settings → Branches → Add branch protection rule,
-pattern `main`, with the same requirements. Never disable protections to push.
+```powershell
+git switch main
+git pull --ff-only origin main
+git switch -c feature/frontend-example
+# Implement and run the checks in README.md.
+git add <specific-files>
+git diff --cached --check
+git commit -m "feat: describe the implemented change"
+git push -u origin feature/frontend-example
+```
 
-Invite the other two developers through Settings → Collaborators → Add people;
-the owner needs their GitHub usernames and they must accept the invitations.
+Open a pull request targeting `main`, include actual test results, and ask a teammate
+to review. The initial baseline has identical main/feature contents, so there is no
+meaningful PR between those two baseline branches. Subsequent changes use PRs.
+Do not force-push main or automatically merge major features.
+
+## Branch protection and collaborators
+
+Protect `main` with one approving review, dismissal of stale approvals, conversation
+resolution, required checks `backend (3.11)`, `backend (3.12)`, and `frontend`, and
+up-to-date branches before merge. Block force pushes and deletion. If configuring
+manually, use Settings → Branches → Add branch protection rule, pattern `main`,
+with these settings. Verify the actual settings on GitHub; this document alone is
+not evidence that protection is active.
+
+Invite the other two developers through Settings → Collaborators → Add people.
+Use their GitHub usernames; they must accept the invitations before contributing.
