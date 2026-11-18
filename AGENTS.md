@@ -18,6 +18,8 @@ Build a synthetic-data-only disaster-reunification MVP. Families submit missing-
 - Do not expose medical or biometric data in URLs, API errors, logs, telemetry or public build artifacts.
 
 ## Work process
+Read `docs/BUILD_CHECKLIST.md` and `docs/ORIGINAL_PROMPT.md` before starting a new work session or resuming after context compaction. The checklist records current progress; the original prompt preserves the user's requirements. Update the checklist with evidence when an item is completed, and include links to both documents in each completion report. Mark implemented, tested, pushed, and merged states separately; do not mark placeholders or mock inference as completed real functionality.
+
 1. Read this file and README before changing code.
 2. Implement one phase at a time. For Phase 1, make dashboard + backend API + local seed data work.
 3. Run available tests and typecheck; write a small test for each backend behavior.
