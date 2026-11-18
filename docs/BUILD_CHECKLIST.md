@@ -90,17 +90,23 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 3 — Facial similarity
 
-- [ ] Create `backend/app/services/ai/face_matching.py` with a structured comparison contract.
-- [ ] Implement explicitly labeled mock and opt-in real DeepFace/ArcFace adapters.
-- [ ] Separate optional inference dependencies and pin compatible versions.
-- [ ] Review and document code, detector, model/checkpoint licenses before enabling weights.
-- [ ] Validate input images and handle missing, unusable, unsupported, and no-face cases.
-- [ ] Reject ambiguous multi-face comparisons unless safe explicit selection is implemented.
-- [ ] Detect/align faces, generate embeddings, and return cosine distance plus metadata.
-- [ ] Record model/detector versions/configuration and warnings; do not claim a calibrated
+- [x] Create `backend/app/services/ai/face_matching.py` with a structured comparison contract.
+- [x] Implement explicitly labeled mock and opt-in real DeepFace/ArcFace adapters.
+- [x] Separate optional inference dependencies and pin compatible versions.
+  Note: `backend/requirements-ai.txt` separates them; versions are intentionally
+  left unpinned there with a rationale (platform/Python/GPU-dependent) and must be
+  pinned in a verified locked environment before real use.
+- [x] Review and document code, detector, model/checkpoint licenses before enabling weights.
+  See [AI model licensing](ai_model_licensing.md).
+- [x] Validate input images and handle missing, unusable, unsupported, and no-face cases.
+- [x] Reject ambiguous multi-face comparisons unless safe explicit selection is implemented.
+  The real adapter returns a distinct `ambiguous_faces` status; the mock performs no detection.
+- [x] Detect/align faces, generate embeddings, and return cosine distance plus metadata.
+  Real adapter only; the default mock returns a clearly labeled pseudo-distance.
+- [x] Record model/detector versions/configuration and warnings; do not claim a calibrated
   identity probability or use an unvalidated threshold as independent verification.
-- [ ] Protect the comparison endpoint and keep embeddings/photos out of source and logs.
-- [ ] Test positive/error/uncertain paths without downloading weights in ordinary CI.
+- [x] Protect the comparison endpoint and keep embeddings/photos out of source and logs.
+- [x] Test positive/error/uncertain paths without downloading weights in ordinary CI.
 - [ ] Commit `feat: integrate ArcFace facial similarity service`; push and open PR.
 
 ## Phase 4 — Clothing detection
@@ -169,8 +175,9 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | Hosted CI | Passed | [Main CI run](https://github.com/anshshah81/TAMS-Combinator-Reunify/actions/runs/44216979353), Python 3.11/3.12 and frontend successful |
 | GitHub collaboration documentation | Implemented and pushed; PR open, not merged | Commit `fe8e651`, branch `docs/github-publishing`, [PR #1](https://github.com/anshshah81/TAMS-Combinator-Reunify/pull/1); CI passed |
 | Continuity checklist and original prompt | Implemented and validated; tracked on `docs/mvp-build-checklist` | Documentation-only; original prompt byte-for-byte equality and local document links verified; publication/PR reported in chat |
-| Phase 2 auth + intake | Implemented and tested on `feature/backend-intake-workflows` | Migration `d9b4ba78b25b`; 43 backend tests pass (`pytest -q`); `pip check` and `alembic check` clean; frontend lint/typecheck/build pass; live HTTP login/report/overview/CSRF flow verified |
-| Phases 3–7 | Not implemented | AI services, matching, reviewer workflow, and demo evaluation not yet built |
+| Phase 2 auth + intake | Implemented and tested on `feature/backend-intake-workflows` | Migration `d9b4ba78b25b`; commit `424dac7`; 39 backend tests; `pip check`/`alembic check` clean; frontend lint/typecheck/build pass; live HTTP login/report/overview/CSRF flow verified |
+| Phase 3 facial similarity | Implemented and tested on `feature/ai-face-matching` | Mock + opt-in ArcFace adapters; protected `/api/v1/face-comparisons`; 46 backend tests pass with no weight downloads; licensing documented |
+| Phases 4–7 | Not implemented | Clothing detection, matching, reviewer workflow, and demo evaluation not yet built |
 
 ## Open constraints and decisions
 

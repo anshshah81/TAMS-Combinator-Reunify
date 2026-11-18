@@ -1,0 +1,19 @@
+# Optional AI inference dependencies. NOT installed by the standard backend setup
+# or by CI, and NOT required to run the app in mock mode. Installing these pulls
+# large packages and (on first real inference) downloads pretrained model weights.
+#
+# Review the licenses of the code AND the pretrained checkpoints before enabling
+# real inference or any commercial deployment. See docs/ai_model_licensing.md.
+#
+# Versions are left unpinned here on purpose: compatible builds depend on the
+# target OS, Python version, and CPU/GPU. Pin them in a locked environment after
+# verifying compatibility on the deployment platform.
+
+# Facial similarity (Phase 3): DeepFace orchestrates ArcFace + RetinaFace.
+deepface
+tf-keras
+
+# Clothing detection (Phase 4): Grounding DINO open-vocabulary detector.
+groundingdino-py
+torch
+torchvision
