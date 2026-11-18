@@ -6,15 +6,15 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Resume here
 
-- Current implementation: Phase 5 candidate matching, on `feature/ai-match-engine`
-  (stacked on the Phase 2–4 feature branches).
+- Current implementation: Phase 6 investigation and human review, on `feature/review-workflow`
+  (stacked on the Phase 2–5 feature branches).
 - Foundation commit: `dd34c2a934ae7ab9f167e1f32715d75ff40e5e84` (Phase 1, on `main`).
-- Phases 2–5 add development-only demo auth, family/hospital intake with image storage,
-  mock + opt-in face matching and clothing detection, and a transparent matching engine
-  that persists ranked candidates with explicit evidence. Demo auth is off by default.
-- Next implementation: Phase 6 investigation and human review (dashboard, reviewer actions,
-  immutable audit trail). AI/matching must never set verified status or contact families.
-- No real AI inference, reviewer workflow, or deployment exists yet.
+- Phases 2–6 add development-only demo auth, family/hospital intake with image storage,
+  mock + opt-in face matching and clothing detection, a transparent matching engine, and the
+  reviewer investigation + human-only verification workflow with an immutable audit trail.
+- Next implementation: Phase 7 evaluation and competition demo (end-to-end scenario, dataset
+  provenance/licensing, person/incident-split evaluation, a11y passes, pitch/limitations docs).
+- No real AI inference or deployment exists yet; all data is synthetic.
 - Keep the existing starter directory; do not move or overwrite teammates' work.
 
 ## How to keep context
@@ -153,18 +153,26 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 6 — Investigation and human review
 
-- [ ] Build restricted AI match dashboard with report/patient IDs, face/clothing evidence,
+- [x] Build restricted AI match dashboard with report/patient IDs, face/clothing evidence,
   other evidence, conflicts/missing data, review status, and investigation action.
-- [ ] Build side-by-side investigation view with authorized photos, attributes, boxes,
+  `frontend/src/app/matches/page.tsx` (reviewer/admin); generate + list candidates.
+- [x] Build side-by-side investigation view with authorized photos, attributes, boxes,
   face evidence, timestamps, and reviewer notes.
-- [ ] Add Investigate Further and Request Additional Information actions.
-- [ ] Add Reject Candidate with reasons and appropriate status transitions.
-- [ ] Add Record Independent Identity Verification with required human evidence/attestation.
-- [ ] Prevent AI/matching execution from setting verified status or contacting families.
-- [ ] Complete ReviewDecision and AuditLog relationships, migrations, and immutable audit trail.
-- [ ] Add authorized admin incident management, user/organization permissions, and audit access.
-- [ ] Update family status through a restricted projection that reveals no candidate/patient details.
-- [ ] Test permissions, concurrent/invalid transitions, audit integrity, and verification prerequisites.
+  `frontend/src/app/matches/[id]/page.tsx`; on-demand face/clothing tools + `DetectionOverlay`.
+- [x] Add Investigate Further and Request Additional Information actions.
+- [x] Add Reject Candidate with reasons and appropriate status transitions.
+- [x] Add Record Independent Identity Verification with required human evidence/attestation.
+  `verify` requires notes + a written attestation (server- and client-enforced).
+- [x] Prevent AI/matching execution from setting verified status or contacting families.
+  Candidate generation only ever sets `needs_review`; verification is a human-only endpoint.
+- [x] Complete ReviewDecision and AuditLog relationships, migrations, and immutable audit trail.
+  Migration `b3f1c6a4e7d2` adds transition + attestation columns; `core/audit.py` is append-only.
+- [x] Add authorized admin incident management, user/organization permissions, and audit access.
+  `api/admin_routes.py`: incident status, users/organizations, audit logs (admin only); `app/admin`.
+- [x] Update family status through a restricted projection that reveals no candidate/patient details.
+  Decisions project only a coarse `received`/`under_review`/`resolved` status onto the report.
+- [x] Test permissions, concurrent/invalid transitions, audit integrity, and verification prerequisites.
+  5 Phase 6 tests in `tests/test_review.py` (family/hospital/reviewer denials, terminal 409, audit, attestation).
 - [ ] Commit `feat: implement case review and resolution workflow`; push and open PR.
 
 ## Phase 7 — Evaluation and competition demo
@@ -194,7 +202,8 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | Phase 3 facial similarity | Implemented and tested on `feature/ai-face-matching` | Commit `7d72e36`; mock + opt-in ArcFace; protected `/api/v1/face-comparisons`; 46 backend tests, no weight downloads; licensing documented |
 | Phase 4 clothing detection | Implemented and tested on `feature/ai-clothing-detection` | Mock + opt-in Grounding DINO; protected `/api/v1/clothing-detections`; detection overlay component; 52 backend tests; frontend lint/typecheck/build pass |
 | Phase 5 candidate matching | Implemented and tested on `feature/ai-match-engine` | `match_engine.py` transparent heuristic + protected `/api/v1/incidents/{id}/candidates` and `/match-candidates`; evidence/score/status persisted; Splink baseline documented; 62 backend tests; family denied |
-| Phases 6–7 | Not implemented | Reviewer workflow and demo evaluation not yet built |
+| Phase 6 review workflow | Implemented and tested on `feature/review-workflow` | Migration `b3f1c6a4e7d2`; `review_routes.py`/`admin_routes.py`; human-only verification with attestation; append-only audit; match-review + investigation + admin UIs; 67 backend tests; frontend lint/typecheck/build pass |
+| Phase 7 | Not implemented | Demo scenario, evaluation, and pitch docs not yet built |
 
 ## Open constraints and decisions
 

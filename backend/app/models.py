@@ -74,10 +74,15 @@ class MatchCandidate(Base):
 class ReviewDecision(Base):
     __tablename__ = 'review_decisions'
     id: Mapped[str] = mapped_column(String(50), primary_key=True)
-    candidate_id: Mapped[str] = mapped_column(ForeignKey('match_candidates.id'))
+    candidate_id: Mapped[str] = mapped_column(ForeignKey('match_candidates.id'), index=True)
     reviewer_id: Mapped[str] = mapped_column(String(50))
     decision: Mapped[str] = mapped_column(String(50))
+    previous_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    new_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Human-written attestation required to record an independent identity
+    # verification; the AI/matching pipeline never populates this.
+    attestation: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now)
 
 class AuditLog(Base):

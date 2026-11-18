@@ -211,6 +211,119 @@ export async function detectClothing(imageId: string, descriptions: string[]): P
   }));
 }
 
+export type Evidence = {
+  supporting: string[];
+  conflicting: string[];
+  missing: string[];
+  score: number;
+  engine_version: string;
+  method: string;
+};
+
+export type MatchCandidate = {
+  id: string;
+  incident_id: string;
+  missing_person_id: string;
+  patient_id: string;
+  ranking_score: number | null;
+  status: string;
+  evidence: Evidence | null;
+  created_at: string;
+};
+
+export type InvestigationReport = {
+  id: string;
+  name: string;
+  nickname: string | null;
+  approximate_age: number | null;
+  height_cm: number | null;
+  hair_color: string | null;
+  eye_color: string | null;
+  distinguishing_features: string | null;
+  last_seen_location: string | null;
+  last_seen_time: string | null;
+  clothing_description: string | null;
+  image_id: string | null;
+};
+
+export type InvestigationPatient = {
+  id: string;
+  internal_id: string | null;
+  approximate_age: number | null;
+  height_cm: number | null;
+  hair_color: string | null;
+  eye_color: string | null;
+  distinguishing_features: string | null;
+  observed_clothing: string | null;
+  intake_location: string | null;
+  admission_time: string | null;
+  image_id: string | null;
+};
+
+export type Investigation = {
+  candidate_id: string;
+  status: string;
+  ranking_score: number | null;
+  evidence: Evidence | null;
+  report: InvestigationReport;
+  patient: InvestigationPatient;
+};
+
+export type DecisionAction = 'investigate' | 'request_info' | 'reject' | 'verify';
+
+export type ReviewDecision = {
+  id: string;
+  candidate_id: string;
+  reviewer_id: string;
+  decision: string;
+  previous_status: string | null;
+  new_status: string | null;
+  notes: string | null;
+  attestation: string | null;
+  created_at: string;
+};
+
+export type AuditEntry = { id: string; actor_id: string; action: string; record_id: string | null; occurred_at: string };
+export type AdminUser = { id: string; display_name: string; role: Role; organization_id: string | null; active: boolean };
+
+export async function generateCandidates(incidentId: string): Promise<MatchCandidate[]> {
+  return readJson<MatchCandidate[]>(await post(`/api/v1/incidents/${incidentId}/candidates`));
+}
+
+export async function listCandidates(incidentId?: string): Promise<MatchCandidate[]> {
+  const query = incidentId ? `?incident_id=${encodeURIComponent(incidentId)}` : '';
+  return readJson<MatchCandidate[]>(await get(`/api/v1/match-candidates${query}`));
+}
+
+export async function getInvestigation(candidateId: string): Promise<Investigation> {
+  return readJson<Investigation>(await get(`/api/v1/match-candidates/${candidateId}/investigation`));
+}
+
+export async function listDecisions(candidateId: string): Promise<ReviewDecision[]> {
+  return readJson<ReviewDecision[]>(await get(`/api/v1/match-candidates/${candidateId}/decisions`));
+}
+
+export async function recordDecision(candidateId: string, body: {
+  decision: DecisionAction; notes?: string; attestation?: string;
+}): Promise<ReviewDecision> {
+  return readJson<ReviewDecision>(await post(`/api/v1/match-candidates/${candidateId}/decisions`, body));
+}
+
+export async function listAuditLogs(): Promise<AuditEntry[]> {
+  return readJson<AuditEntry[]>(await get('/api/v1/admin/audit-logs'));
+}
+
+export async function listUsers(): Promise<AdminUser[]> {
+  return readJson<AdminUser[]>(await get('/api/v1/admin/users'));
+}
+
+export async function setIncidentStatus(incidentId: string, status: string): Promise<Incident> {
+  const response = await fetch(`${api}/api/v1/admin/incidents/${incidentId}`, {
+    method: 'PATCH', credentials: 'include', headers: MUTATION_HEADERS, body: JSON.stringify({ status }),
+  });
+  return readJson<Incident>(response);
+}
+
 export async function uploadImage(file: File): Promise<string> {
   const form = new FormData();
   form.append('file', file);
