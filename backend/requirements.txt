@@ -3,3 +3,5 @@ uvicorn[standard]==0.34.3
 sqlalchemy==2.0.41
 pydantic==2.11.7
 alembic==1.16.5
+Pillow==13.0.0
+python-multipart==0.0.20

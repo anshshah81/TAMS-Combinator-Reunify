@@ -6,12 +6,12 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Resume here
 
-- Current implementation: Phase 1 foundation, published on `main`.
-- Foundation commit: `dd34c2a934ae7ab9f167e1f32715d75ff40e5e84`.
-- Next implementation: Phase 2 authentication/access boundaries, then intake.
-- No real inference, intake, authentication, or reviewer workflow is implemented.
-- Documentation PR #1 is open; it is not merged and does not block implementation.
-- This checklist and the original prompt are documentation additions, not Phase 2 work.
+- Current implementation: Phase 2 authentication and intake, on `feature/backend-intake-workflows`.
+- Foundation commit: `dd34c2a934ae7ab9f167e1f32715d75ff40e5e84` (Phase 1, on `main`).
+- Phase 2 adds development-only demo auth, family/hospital intake, image storage, and family
+  tracking. Demo auth is off by default and refuses to run outside development.
+- Next implementation: Phase 3 facial similarity (mock + opt-in ArcFace), no real verification.
+- No real AI inference, reviewer workflow, or deployment exists yet.
 - Keep the existing starter directory; do not move or overwrite teammates' work.
 
 ## How to keep context
@@ -63,24 +63,29 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 
 ## Phase 2 — Authentication and intake workflows
 
-- [ ] Add User and Organization models, relationships, indexes, and migrations.
-- [ ] Implement explicit development-only fictional authentication, disabled outside demo use.
-- [ ] Enforce family, hospital, reviewer, and administrator roles on the server.
-- [ ] Enforce organization scopes and report ownership; test cross-role/cross-user denial.
-- [ ] Add portal login/session handling and role-aware navigation; label demo auth honestly.
-- [ ] Build landing page with branding, mission, matching explanation, report and staff actions.
-- [ ] Establish reusable shadcn/ui components consistent with the existing frontend.
-- [ ] Build missing-person form: name/nickname, approximate age, height, hair/eye color,
+- [x] Add User and Organization models, relationships, indexes, and migrations.
+- [x] Implement explicit development-only fictional authentication, disabled outside demo use.
+- [x] Enforce family, hospital, reviewer, and administrator roles on the server.
+- [x] Enforce organization scopes and report ownership; test cross-role/cross-user denial.
+- [x] Add portal login/session handling and role-aware navigation; label demo auth honestly.
+- [x] Build landing page with branding, mission, matching explanation, report and staff actions.
+- [x] Establish reusable UI components consistent with the existing frontend.
+  Note: hand-rolled Tailwind primitives (`components/ui.tsx`) following shadcn/ui
+  conventions, chosen over the shadcn CLI to avoid new dependencies and keep the
+  locked frontend install and CI stable.
+- [x] Build missing-person form: name/nickname, approximate age, height, hair/eye color,
   distinguishing features, last-known place/time, clothing, photo, reporter contact, consent.
-- [ ] Build hospital intake: hospital/internal identifier, estimated age/height, hair/eye
+- [x] Build hospital intake: hospital/internal identifier, estimated age/height, hair/eye
   color, distinguishing features, clothing, intake place/time, authorized photo.
-- [ ] Support unknown/missing patient attributes without inventing values.
-- [ ] Implement input validation, timezone handling, persistence, and schema migrations.
-- [ ] Add secure image-storage abstraction and authenticated upload/retrieval boundaries.
-- [ ] Validate image content/format/size; use opaque identifiers and safe storage paths.
-- [ ] Provide submission success/error states and a report tracking ID.
-- [ ] Add authenticated family tracking with limited status and no hospital/candidate disclosure.
-- [ ] Test forms, persistence, invalid inputs, uploads, access restrictions, and failure states.
+- [x] Support unknown/missing patient attributes without inventing values.
+- [x] Implement input validation, timezone handling, persistence, and schema migrations.
+- [x] Add secure image-storage abstraction and authenticated upload/retrieval boundaries.
+- [x] Validate image content/format/size; use opaque identifiers and safe storage paths.
+- [x] Provide submission success/error states and a report tracking ID.
+- [x] Add authenticated family tracking with limited status and no hospital/candidate disclosure.
+- [x] Test forms, persistence, invalid inputs, uploads, access restrictions, and failure states.
+  Backend: 22 Phase 2 tests in `tests/test_intake.py`. Frontend verified via lint/typecheck/build;
+  no frontend unit tests yet.
 - [ ] Commit `feat: implement family and hospital intake workflows`; push and open PR.
 
 ## Phase 3 — Facial similarity
@@ -164,7 +169,8 @@ AI and review milestones in AGENTS.md into smaller deliverables.
 | Hosted CI | Passed | [Main CI run](https://github.com/anshshah81/TAMS-Combinator-Reunify/actions/runs/44216979353), Python 3.11/3.12 and frontend successful |
 | GitHub collaboration documentation | Implemented and pushed; PR open, not merged | Commit `fe8e651`, branch `docs/github-publishing`, [PR #1](https://github.com/anshshah81/TAMS-Combinator-Reunify/pull/1); CI passed |
 | Continuity checklist and original prompt | Implemented and validated; tracked on `docs/mvp-build-checklist` | Documentation-only; original prompt byte-for-byte equality and local document links verified; publication/PR reported in chat |
-| Phases 2–7 | Not implemented | Existing navigation placeholders and seeded candidate do not satisfy these workflows |
+| Phase 2 auth + intake | Implemented and tested on `feature/backend-intake-workflows` | Migration `d9b4ba78b25b`; 43 backend tests pass (`pytest -q`); `pip check` and `alembic check` clean; frontend lint/typecheck/build pass; live HTTP login/report/overview/CSRF flow verified |
+| Phases 3–7 | Not implemented | AI services, matching, reviewer workflow, and demo evaluation not yet built |
 
 ## Open constraints and decisions
 

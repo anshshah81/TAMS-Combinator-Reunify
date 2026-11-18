@@ -25,10 +25,11 @@ def database(tmp_path):
 
 @pytest.fixture()
 def client(database):
+    from app.core.settings import Settings
     factory, _, _ = database
     with factory() as db:
         seed_synthetic_demo(db)
-    with TestClient(create_app(factory)) as client:
+    with TestClient(create_app(factory, Settings(environment='development', demo_auth=False))) as client:
         yield client
 
 
@@ -100,10 +101,17 @@ def test_migration_round_trip(database):
     assert 'incidents' in inspect(engine).get_table_names()
 
 
-@pytest.mark.parametrize('path', ['patients', 'reports', 'matches', 'images', 'decisions'])
-def test_restricted_routes_not_exposed(client, path):
-    assert client.get(f'/api/v1/{path}').status_code == 404
-    assert client.post(f'/api/v1/{path}', json={}).status_code == 404
+def test_restricted_routes_denied_when_demo_auth_disabled(database):
+    # With demo authentication disabled, every restricted route denies access
+    # rather than exposing data. Build the app with explicit settings so the
+    # assertion does not depend on ambient environment variables.
+    from app.core.settings import Settings
+    factory, _, _ = database
+    app = create_app(factory, Settings(environment='development', demo_auth=False))
+    with TestClient(app) as denied:
+        for path in ('/api/v1/auth/me', '/api/v1/auth/demo-accounts', '/api/v1/reports',
+                     '/api/v1/patients', '/api/v1/images/abc'):
+            assert denied.get(path).status_code == 503, path
 
 
 def test_cors_allows_local_frontend_only(client):
@@ -113,7 +121,8 @@ def test_cors_allows_local_frontend_only(client):
     assert 'access-control-allow-origin' not in response.headers
 
 
-def test_openapi_only_exposes_public_demo_routes(client):
-    assert set(client.get('/openapi.json').json()['paths']) == {
-        '/api/v1/health', '/api/v1/incidents', '/api/v1/demo/overview',
-    }
+def test_public_demo_routes_present(client):
+    paths = set(client.get('/openapi.json').json()['paths'])
+    assert {'/api/v1/health', '/api/v1/incidents', '/api/v1/demo/overview'} <= paths
+    # Restricted routes are documented but gated by authentication, not hidden.
+    assert {'/api/v1/reports', '/api/v1/patients', '/api/v1/auth/login'} <= paths
